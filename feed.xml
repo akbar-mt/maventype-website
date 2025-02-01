@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+    <title>maventype</title>
+    <link href="https://akbar-mt.github.io/maventype-website/feed.xml" rel="self" />
+    <link href="https://akbar-mt.github.io/maventype-website" />
+    <updated>2025-02-01T17:32:51+05:30</updated>
+    <author>
+        <name>Akbar Pasha</name>
+    </author>
+    <id>https://akbar-mt.github.io/maventype-website</id>
+
+    <entry>
+        <title>Understanding Rust&#x27;s Block Scope vs Function Scope: A Deep Dive 🦀 </title>
+        <author>
+            <name>Akbar Pasha</name>
+        </author>
+        <link href="https://akbar-mt.github.io/maventype-website/understanding-rusts-block-scope-vs-function-scope-a-deep-dive.html"/>
+        <id>https://akbar-mt.github.io/maventype-website/understanding-rusts-block-scope-vs-function-scope-a-deep-dive.html</id>
+            <category term="Rust"/>
+
+        <updated>2024-12-11T10:24:00+05:30</updated>
+            <summary>
+                <![CDATA[
+                    Have you ever wondered why some code blocks in Rust can see&hellip;
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                
+  <p>
+    Have you ever wondered why some code blocks in Rust can see outer variables while others can't? Let's explore the fascinating difference between block scope and function scope in Rust, and see how they behave quite differently when it comes to accessing variables from their surrounding context.
+  </p>
+
+    <h2 id="block-scope-the-one-way-window-andnbsplessbrgreater">
+      Block Scope: The One-Way Window 👀&nbsp;<br>
+    </h2>
+
+  <p>
+    Think of block scope like a room with a one-way window. Inner blocks (rooms) can see everything in their outer scope (the hallway), but the outer scope can't peek into what's defined inside the block. Let's look at a practical example:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let pokemon_name = "Pikachu"; // 🐹 Our friendly electric Pokemon
+    let pokemon_level = 25;       // ⚡ Power level
+    
+    {
+        // Inner block can see both outer variables
+        println!("Level {} {}", pokemon_level, pokemon_name);
+        
+        let pokemon_hp = 100;     // ❤️ Health points
+        // We can use all three variables here
+        println!("{} (Lv.{}) has {} HP", pokemon_name, pokemon_level, pokemon_hp);
+    }
+    // Here we can only use pokemon_name and pokemon_level
+    // Trying to use pokemon_hp would fail! It stayed in the inner room
+}</code></pre>
+
+  <p>
+    This hierarchical visibility is incredibly useful when you want to create temporary transformations or limit the scope of certain variables. Here's another example showing how we might process some game data:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let score = 1000;            // 🎮 Original game score
+    
+    {
+        // Temporary bonus calculation
+        let score = score * 2;    // 🌟 Double score bonus
+        println!("Bonus score: {}", score);  // Shows 2000
+    }
+    
+    println!("Regular score: {}", score);    // Shows 1000
+}</code></pre>
+
+    <h2 id="function-scope-the-independent-room">
+      Function Scope: The Independent Room 🏠
+    </h2>
+
+  <p>
+    Now, here's where things get interesting! Unlike blocks, functions in Rust are more like separate buildings – they can't automatically see into the building they're defined in. They're independent units with their own scope:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let player_name = "Mario"; // 🎮 Our player
+    
+    fn greet_player() {
+        // ❌ This won't work! Can't see player_name
+        // println!("Hello, {}", player_name);
+    }
+    
+    // Instead, we need to pass data explicitly
+    fn proper_greeting(name: &str) {
+        println!("Hello, {}! 👋", name);
+    }
+    
+    proper_greeting(player_name); // ✅ This works!
+}</code></pre>
+
+    <h2 id="the-plot-twist-closures">
+      The Plot Twist: Closures 🎭
+    </h2>
+
+  <p>
+    But wait, there's more! Rust has a special construct called closures that combine the best of both worlds. They're like functions that can actually see their surroundings:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let multiplier = 3;      // 🔢 Our magic number
+    let points = 100;        // 💎 Base points
+    
+    // Closure can capture variables from its environment
+    let calculate_bonus = || {
+        println!("Bonus points: {} ⭐", points * multiplier);
+    };
+    
+    calculate_bonus();  // This works! Shows: Bonus points: 300 ⭐
+}</code></pre>
+
+    <h2 id="why-this-matters">
+      Why This Matters 🎯
+    </h2>
+
+  <p>
+    This distinction in scoping rules isn't just a quirky language feature – it serves important purposes:
+  </p>
+
+  <ul>
+    <li><span style="color: var(--text-primary-color); font-family: var(--editor-font-family); font-size: 1em; font-weight: var(--font-weight-normal);">Block scope provides a clean way to create temporary transformations and limit the visibility of variables while still having access to the context they need.</span><br></li><li>Function scope ensures that functions are self-contained units with clear inputs and outputs, making your code more maintainable and easier to reason about.&nbsp;</li>
+  </ul>
+
+    <h2 id="practical-example-a-game-score-processor">
+      Practical Example: A Game Score Processor 🎮
+    </h2>
+
+  <p>
+    Let's tie it all together with a practical example that shows these different scoping rules in action:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let base_score = 1000;    // 🎯 Base score
+    let difficulty = 1.5;     // 🎲 Difficulty multiplier
+    
+    // Using block scope for temporary calculations
+    {
+        let score = base_score as f64 * difficulty;
+        println!("Adjusted score: {:.0} 📈", score);
+    }
+    
+    // Using a proper function (needs explicit parameters)
+    fn calculate_bonus(score: i32, bonus: f64) -&gt; f64 {
+        score as f64 * bonus
+    }
+    
+    // Using a closure that can see outer variables
+    let final_calculation = || {
+        let bonus_score = calculate_bonus(base_score, difficulty);
+        println!("Final score: {:.0} 🏆", bonus_score);
+    };
+    
+    final_calculation();
+}</code></pre>
+
+    <h2 id="conclusion">
+      Conclusion 🎓
+    </h2>
+
+  <p>
+    Understanding the difference between block scope and function scope in Rust helps you write more effective and maintainable code. Block scope provides flexibility with temporary transformations while maintaining access to outer variables, while function scope ensures clean, explicit data flow. And when you need the best of both worlds, closures are there to help!
+<br>
+<br>Remember:
+  </p>
+
+  <ul>
+    <li>Blocks can see their outer scope (one-way window) 👀</li><li>Functions are independent and need explicit inputs 📦<br></li><li>Closures can capture their environment (best of both worlds) 🎭</li>
+  </ul>
+
+  <p>
+    Keep these principles in mind, and you'll be writing cleaner, more effective Rust code in no time! Happy coding! 🦀✨
+<br>
+<br>
+  </p>
+            ]]>
+        </content>
+    </entry>
+    <entry>
+        <title>Understanding Arrays and Vectors in Rust </title>
+        <author>
+            <name>Akbar Pasha</name>
+        </author>
+        <link href="https://akbar-mt.github.io/maventype-website/understanding-arrays-and-vectors-in-rust.html"/>
+        <id>https://akbar-mt.github.io/maventype-website/understanding-arrays-and-vectors-in-rust.html</id>
+            <category term="Rust"/>
+
+        <updated>2024-09-02T13:18:00+05:30</updated>
+            <summary>
+                <![CDATA[
+                    Rust provides several ways to represent sequences of values in memory. In&hellip;
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                
+  <p>
+    Rust provides several ways to represent sequences of values in memory. In this blog post, we'll explore two fundamental types: Arrays and Vectors. We'll dive into their characteristics, use cases, and how to work with them effectively.
+  </p>
+
+    <h2 id="arrays-in-rustandnbsplessbrgreater">
+      Arrays in Rust&nbsp;<br>
+    </h2>
+
+  <p>
+    Arrays in Rust are fixed-size sequences of elements of the same type. They're denoted by the type <code>[T; N]</code>, where <code>T</code> is the type of elements and <code>N</code> is the number of elements.<br>
+  </p>
+
+    <h3 id="key-characteristics-of-arraysandnbsplessbrgreater">
+      Key Characteristics of Arrays:&nbsp;<br>
+    </h3>
+
+  <ul>
+    <li>Fixed size, determined at compile time</li><li>Cannot be resized after creation</li><li>Stored on the stack</li>
+  </ul>
+
+  <p>
+    Let's look at some examples:<br>
+  </p>
+<pre class="line-numbers  language-rust"><code>// Creating arrays
+let lazy_caterer: [u32; 6] = [1, 2, 4, 7, 11, 16];
+let taxonomy = ["Animalia", "Anthropoda", "Insecta"];
+
+// Accessing elements
+assert_eq!(lazy_caterer[3], 7);
+assert_eq!(taxonomy.len(), 3);
+
+// Creating an array with repeated values
+let mystring = ["akbar"; 10];
+
+for n in mystring {
+    println!("{}", n);
+}</code></pre>
+
+  <p>
+    Arrays are particularly useful for creating fixed-size buffers:
+  </p>
+<pre class="line-numbers  language-rust"><code>// Creating a 1KB buffer filled with zeros
+let mut buffer = [0u8; 1024];
+
+// Copying data into the buffer
+let message = b"Hello rust buffer";
+buffer[..message.len()].copy_from_slice(message);
+
+println!("{}", std::str::from_utf8(&buffer[..buffer.len()]).unwrap());</code></pre>
+
+    <h3 id="array-slicesandnbsplessbrgreater">
+      Array Slices&nbsp;<br>
+    </h3>
+
+  <p>
+    Rust also provides slice types &amp;[T] and &amp;mut [T], which are references to a portion of an array or vector. Slices are useful for working with a subset of elements without copying them.<br>
+  </p>
+<pre class="line-numbers  language-rust"><code>// Using slices to manipulate part of the buffer
+for i in 0..10 {
+    buffer[message.len() + i] = i as u8;
+}
+
+println!("Counter values {:?}", &buffer[message.len()..message.len() + 10]);</code></pre>
+
+    <h2 id="vectors-in-rustandnbsplessbrgreater">
+      Vectors in Rust&nbsp;<br>
+    </h2>
+
+  <p>
+    Vectors (Vec<t>) are dynamically-sized arrays. Unlike arrays, vectors can grow or shrink in size and are stored on the heap.<br></t>
+  </p>
+
+    <h3 id="key-characteristics-of-vectorsandnbsplessbrgreater">
+      Key Characteristics of Vectors:&nbsp;<br>
+    </h3>
+
+  <ul>
+    <li>Dynamically sized
+</li><li>Can be resized at runtime
+</li><li>Stored on the heap</li>
+  </ul>
+
+  <p>
+    Let's explore various ways to create and manipulate vectors:
+  </p>
+<pre class="line-numbers  language-rust"><code>// Creating vectors
+let mut primes = vec![2, 3, 5, 7];
+assert_eq!(primes.iter().product::&lt;i32&gt;(), 210);
+
+// Creating a vector with repeated values
+fn new_pixel_buffer(rows: usize, cols: usize) -&gt; Vec&lt;u8&gt; {
+    vec![0; rows * cols]
+}
+
+// Building a vector by pushing elements
+let mut pal = Vec::new();
+pal.push("step");
+pal.push("on");
+pal.push("no");
+pal.push("pets");
+assert_eq!(pal, ["step", "on", "no", "pets"]);
+
+// Creating a vector from an iterator
+let v: Vec&lt;i32&gt; = (0..5).collect();
+assert_eq!(v, [0, 1, 2, 3, 4]);</code></pre>
+
+    <h3 id="vector-capacity-and-reallocationandnbsplessbrgreater">
+      Vector Capacity and Reallocation&nbsp;<br>
+    </h3>
+
+  <p>
+    Vectors manage their own memory and can grow as needed. However, growing a vector may involve reallocating memory, which can be costly. To optimize performance, you can pre-allocate capacity:
+  </p>
+<pre class="line-numbers  language-rust"><code>let mut v: Vec&lt;i32&gt; = Vec::with_capacity(2);
+assert_eq!(v.len(), 0);
+assert_eq!(v.capacity(), 2);
+
+v.push(1);
+v.push(2);
+v.push(3);
+
+println!("Capacity after pushing 3 elements: {}", v.capacity()); // capacity is 4, len is 3</code></pre>
+
+    <h3 id="modifying-vectorsandnbsplessbrgreater">
+      Modifying Vectors&nbsp;<br>
+    </h3>
+
+  <p>
+    Vectors provide methods for inserting and removing elements:
+  </p>
+<pre class="line-numbers  language-rust"><code>let mut v = vec![10, 20, 30, 40, 50];
+
+// Inserting an element
+v.insert(3, 35);
+assert_eq!(v, [10, 20, 30, 35, 40, 50]);
+
+// Removing an element
+v.remove(1);
+assert_eq!(v, [10, 30, 35, 40, 50]);
+
+// Popping elements from the end
+let mut v = vec!["Snow Puff", "Glass Gem"];
+assert_eq!(v.pop(), Some("Glass Gem"));
+assert_eq!(v.pop(), Some("Snow Puff"));
+assert_eq!(v.pop(), None);</code></pre>
+
+    <h2 id="conclusion">
+      Conclusion
+    </h2>
+
+  <p>
+    Arrays and Vectors are fundamental to working with sequences of data in Rust. Arrays offer fixed-size, stack-allocated storage, while Vectors provide flexibility with dynamic sizing and heap allocation. Understanding when to use each and how to manipulate them effectively is crucial for writing efficient Rust code.
+  </p>
+
+  <p>
+    Remember:
+  </p>
+
+  <ul>
+    <li>Use arrays when you need a fixed number of elements and want stack allocation.
+</li><li>Use vectors when you need a dynamic size or don't know the size at compile time.
+</li><li>Leverage slices to work with portions of arrays or vectors efficiently.</li>
+  </ul>
+
+  <p>
+    By mastering these concepts, you'll be well-equipped to handle various data storage and manipulation tasks in your Rust programs.<br>
+  </p>
+            ]]>
+        </content>
+    </entry>
+    <entry>
+        <title>Building a Simple Collection Management System in Rust</title>
+        <author>
+            <name>Akbar Pasha</name>
+        </author>
+        <link href="https://akbar-mt.github.io/maventype-website/building-a-simple-collection-management-system-in-rust.html"/>
+        <id>https://akbar-mt.github.io/maventype-website/building-a-simple-collection-management-system-in-rust.html</id>
+            <category term="Rust"/>
+
+        <updated>2024-08-31T17:32:00+05:30</updated>
+            <summary>
+                <![CDATA[
+                    In this blog post, we'll explore how to build a simple collection&hellip;
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                
+  <p>
+    In this blog post, we'll explore how to build a simple collection management system using Rust. We'll create a program that allows users to add items to a collection, update their quantities, and list all items. This project will demonstrate the use of structs, implementations, HashMaps, and basic input/output operations in Rust.
+  </p>
+
+    <h2 id="setting-up-the-project">
+      Setting Up the Project
+    </h2>
+
+  <p>
+    First, let's start by importing the necessary modules:
+  </p>
+<pre class="line-numbers  language-rust"><code>use std::io::{self, Write};
+use std::collections::HashMap;</code></pre>
+
+  <p>
+    We're using <code>std::io</code> for input/output operations and <code>std::collections::HashMap</code> to store our items.
+  </p>
+
+    <h2 id="defining-the-data-structures">
+      Defining the Data Structures
+    </h2>
+
+  <p>
+    We'll define two structs: <code>Item</code> and <code>Collection</code>:
+  </p>
+<pre class="line-numbers  language-rust"><code>struct Item {
+    _name: String,
+    _quantity: u8,
+}
+
+struct Collection {
+    _items: HashMap&lt;String, Item&gt;,
+}</code></pre>
+
+  <p>
+    The <code>Item</code> struct represents an individual item with a name and quantity. The <code>Collection</code> struct uses a <code>HashMap</code> to store items, with the item name as the key and the <code>Item</code> struct as the value.
+  </p>
+
+    <h2 id="implementing-collection-methods">
+      Implementing Collection Methods
+    </h2>
+
+  <p>
+    Now, let's implement methods for our <code>Collection</code> struct:
+  </p>
+<pre class="line-numbers  language-rust"><code>impl Collection {
+    fn new() -&gt; Self {
+        Collection {
+            _items: HashMap::new(),
+        }
+    }
+
+    fn add_item(&mut self, name: String, quantity: u8) {
+        let item = Item {
+            _name: name.to_string(),
+            _quantity: quantity,
+        };
+
+        self._items.insert(name.to_string(), item);
+        println!("Added an item {} and quantity {}", name, quantity);
+    }
+    
+    fn update_item(&mut self, name: String, quantity: u8) {
+        if let Some(item) = self._items.get_mut(&name) {
+            item._quantity = quantity;
+            println!("Updated item: {} and quantity {}", name, quantity);
+        } else {
+            println!("No item in the collection");
+        }
+    }
+    
+    fn list_item(&self) {
+        if self._items.is_empty() {
+            println!("There are no items in the list");
+        } else {
+            for item in self._items.values() {
+                println!("Added item: {} and quantity: {}", item._name, item._quantity);
+            }
+        }
+    }
+}</code></pre>
+
+  <p>
+    Let's break down these methods:
+  </p>
+
+  <ol>
+    <li><code>new()</code>: This is a constructor that creates a new Collection with an empty HashMap.
+</li><li><code>add_item()</code>: Adds a new item to the collection.
+</li><li><code>update_item()</code>: Updates the quantity of an existing item.
+</li><li><code>list_item()</code>: Lists all items in the collection.</li>
+  </ol>
+
+    <h2 id="the-main-function">
+      The Main Function
+    </h2>
+
+  <p>
+    Finally, let's implement the <code>main()</code> function to tie everything together:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let mut collection = Collection::new();
+
+    loop {
+        println!("1. Add an item");
+        println!("2. Update an item");
+        println!("3. List an item");
+        println!("4. Exit");
+
+        print!("Enter your choice: ");
+
+        io::stdout().flush().expect("Failed to flush stdout");
+
+        let mut take_input: String = String::new();
+
+        io::stdin().read_line(&mut take_input).expect("Failed to read line");
+
+        let choice: u8 = take_input.trim().parse().expect("Failed to convert to integer");
+
+        match choice {
+            1 =&gt; collection.add_item(String::from("Apple"), 5),
+            2 =&gt; collection.update_item(String::from("Apple"), 8),
+            3 =&gt; collection.list_item(),
+            4 =&gt; break,
+            _ =&gt; println!("Failed to recognize the choice"),
+        }
+    }
+}</code></pre>
+
+  <p>
+    This function creates a new <code>Collection</code> and enters a loop that presents a menu to the user. Based on the user's choice, it calls the appropriate method on the <code>collection</code> object.
+  </p>
+
+  <p>
+    Let's take a closer look at this line:
+  </p>
+<pre class="line-numbers  language-rust"><code>io::stdout().flush().expect("Failed to flush stdout");
+</code></pre>
+
+  <p>
+    This line is crucial for ensuring that our prompt is immediately visible to the user. Here's a breakdown of what's happening:
+  </p>
+
+  <ol>
+    <li><code>io::stdout()</code>: This returns a handle to the standard output stream.
+</li><li><code>.flush()</code>: The <code>flush()</code> method is called on the stdout handle. In many systems, output is buffered by default, which means that text isn't immediately written to the screen but is stored in a buffer first. Flushing forces any buffered content to be written immediately.
+</li><li><code>.expect("Failed to flush stdout")</code>: The <code>flush()</code> method returns a <code>Result</code>. We use <code>expect()</code> here to handle any potential errors. If <code>flush()</code> fails, the program will panic with the message "Failed to flush stdout".</li>
+  </ol>
+
+  <p>
+    Why is this important? In this case, we're using <code>print!()</code> instead of <code>println!()</code> to display the prompt. The <code>print!()</code> macro doesn't automatically flush the output buffer, while <code>println!()</code> does. Without flushing, the prompt might not appear until after the user has already started typing their input, leading to a confusing user experience.
+  </p>
+
+    <h2 id="behavior-of-print-vs-println">
+      Behavior of print!() vs. println!()
+    </h2>
+
+  <ol>
+    <li><code>print!()</code>: The <code>print!()</code> macro does not automatically flush the output buffer. This means that if you print something with <code>print!()</code> and don't explicitly flush, the output may stay in the buffer and not appear on the screen immediately.
+</li><li><code>println!()</code>: The <code>println!()</code> macro, on the other hand, does flush the output buffer automatically after printing. This is because <code>println!()</code> adds a newline character, which usually triggers a flush on most systems.</li>
+  </ol>
+
+  <p>
+    By explicitly flushing stdout, we ensure that the prompt appears on the screen before the program waits for user input, providing a smoother, more intuitive interaction.
+  </p>
+
+  <p>
+    For more information on input/output operations in Rust, you can refer to the <a href="https://doc.rust-lang.org/std/io/index.html" target="_blank">std::io module documentation</a>.
+  </p>
+
+  <p>
+    Key Concepts and Rust Features Used
+  </p>
+
+  <ol>
+    <li><b>Structs</b>: We use structs to define custom data types. Learn more about structs in the <a href="https://doc.rust-lang.org/book/ch05-00-structs.html" target="_blank">Rust Book</a>.
+</li><li><b>Implementations</b>: The <code>impl</code> block allows us to define methods associated with our <code>Collection</code> struct. Read more about method syntax in the <a href="https://doc.rust-lang.org/book/ch05-03-method-syntax.html" target="_blank">Rust Book</a>.
+</li><li><b>HashMap</b>: We use a <code>HashMap</code> to store our items. This provides efficient lookup and insertion operations. Learn more about HashMaps in the <a href="https://doc.rust-lang.org/std/collections/struct.HashMap.html" target="_blank">Rust documentation</a>.
+</li><li><b>Pattern Matching</b>: We use <code>match</code> to handle different user choices. Explore pattern matching in the <a href="https://doc.rust-lang.org/book/ch06-02-match.html" target="_blank">Rust Book</a>.
+</li><li><b>Error Handling</b>: We use <code>expect()</code> for simple error handling. For more advanced error handling techniques, check out the <a href="https://doc.rust-lang.org/book/ch09-00-error-handling.html" target="_blank">error handling chapter</a> in the Rust Book.
+</li><li><b>Ownership and Borrowing</b>: Notice the use of <code>&amp;mut self</code> in some methods, which borrows the <code>Collection</code> mutably. Understanding ownership is crucial in Rust - learn more in the <a href="https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html" target="_blank">ownership chapter</a> of the Rust Book.</li>
+  </ol>
+            ]]>
+        </content>
+    </entry>
+    <entry>
+        <title>Understanding Move Semantics, Copy, and Clone in Rust</title>
+        <author>
+            <name>Akbar Pasha</name>
+        </author>
+        <link href="https://akbar-mt.github.io/maventype-website/understanding-move-semantics-copy-and-clone-in-rust.html"/>
+        <id>https://akbar-mt.github.io/maventype-website/understanding-move-semantics-copy-and-clone-in-rust.html</id>
+            <category term="Rust"/>
+
+        <updated>2024-08-29T16:20:00+05:30</updated>
+            <summary>
+                <![CDATA[
+                    In Rust, when you assign a value to a new variable or&hellip;
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                
+  <p>
+    In Rust, when you assign a value to a new variable or pass it to a function, the behavior depends on whether the type implements the <code>Copy</code> trait. Let's explore this with some examples.
+  </p>
+
+    <h2 id="move-semantics">
+      Move Semantics
+    </h2>
+
+  <p>
+    By default, if a type doesn't implement the <code>Copy</code> trait, assigning it to a new variable or passing it to a function will move the value instead of copying it.
+  </p>
+
+  <p>
+    Here's an example with <code>String</code>, which doesn't implement <code>Copy</code>:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;  // s1 is moved to s2
+
+    println!("{}", s1);  // This line would cause a compile-time error
+}</code></pre>
+
+  <p>
+    This code won't compile. You'll get an error like this:
+  </p>
+<pre class="line-numbers  language-rust"><code>error[E0382]: borrow of moved value: `s1`
+ --&gt; src/main.rs:5:20
+  |
+2 |     let s1 = String::from("hello");
+  |         -- move occurs because `s1` has type `String`, which does not implement the `Copy` trait
+3 |     let s2 = s1;  // s1 is moved to s2
+  |              -- value moved here
+4 | 
+5 |     println!("{}", s1);  // This line would cause a compile-time error
+  |                    ^^ value borrowed here after move</code></pre>
+
+  <p>
+    The ownership of the string data has moved from <code>s1</code> to <code>s2</code>, and <code>s1</code> is no longer valid to use.
+  </p>
+
+    <h2 id="the-copy-trait">
+      The Copy Trait
+    </h2>
+
+  <p>
+    Types that implement the <code>Copy</code> trait behave differently. When you assign a <code>Copy</code> type, it's copied instead of moved. Most primitive types (like integers, floats, and booleans) implement <code>Copy</code>.
+  </p>
+
+  <p>
+    Here's an example:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let x = 5;
+    let y = x;  // x is copied to y
+
+    println!("x = {}, y = {}", x, y);  // This is fine, x is still valid
+}</code></pre>
+
+  <p>
+    This code works because <code>i32</code> (the type of <code>x</code>) implements <code>Copy</code>. Both <code>x</code> and <code>y</code> are usable after the assignment.
+  </p>
+
+    <h2 id="the-clone-trait">
+      The Clone Trait
+    </h2>
+
+  <p>
+    For types that don't implement <code>Copy</code> (like <code>String</code>), Rust provides the <code>Clone</code> trait. Clone allows you to explicitly create a deep copy of a value.
+  </p>
+
+  <p>
+    Here's how you can use <code>Clone</code> with <code>String</code>:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1.clone();  // Explicitly clone s1
+
+    println!("s1 = {}, s2 = {}", s1, s2);  // This is fine, s1 is still valid
+}</code></pre>
+
+  <p>
+    In this case, <code>s2</code> gets a new allocation with a copy of the data from <code>s1</code>. Both <code>s1</code> and <code>s2</code> are valid and independent.
+  </p>
+
+    <h2 id="implementing-copy-and-clone">
+      Implementing Copy and Clone
+    </h2>
+
+  <p>
+    You can implement <code>Copy</code> and <code>Clone</code> for your own types. Here's an example:
+  </p>
+<pre class="line-numbers  language-rust"><code>#[derive(Debug, Copy, Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p1 = Point { x: 5, y: 10 };
+    let p2 = p1;  // p1 is copied to p2 because Point implements Copy
+
+    println!("p1 = {:?}", p1);  // This is fine, p1 is still valid
+    println!("p2 = {:?}", p2);
+}</code></pre>
+
+  <p>
+    In this example, <code>Point</code> implements both <code>Copy</code> and <code>Clone</code>. When we assign <code>p1</code> to <code>p2</code>, it's copied, not moved.
+  </p>
+
+    <h2 id="key-points-to-remember">
+      Key Points to Remember
+    </h2>
+
+  <ul>
+    <li>By default, assigning non-<code>Copy</code> types moves the value.
+</li><li>Types that implement <code>Copy</code> are automatically copied when assigned or passed to functions.
+</li><li><code>Clone</code> allows explicit copying of values, even for types that don't implement <code>Copy</code>.
+</li><li><code>Copy</code> is implicit and cheap, while <code>Clone</code> is explicit and may be more expensive.
+</li><li>Not all types can implement <code>Copy</code>. For example, types that manage resources (like <code>String</code> or <code>Vec</code>) typically don't implement <code>Copy</code>.</li>
+  </ul>
+
+  <p>
+    Understanding these concepts is crucial for writing efficient Rust code and avoiding unexpected behavior related to ownership and borrowing.
+  </p>
+            ]]>
+        </content>
+    </entry>
+    <entry>
+        <title>Rust Scopes, References, Sized Types, Lifetimes, and Ownership </title>
+        <author>
+            <name>Akbar Pasha</name>
+        </author>
+        <link href="https://akbar-mt.github.io/maventype-website/rust-scopes-references-sized-types-lifetimes-and-ownership.html"/>
+        <id>https://akbar-mt.github.io/maventype-website/rust-scopes-references-sized-types-lifetimes-and-ownership.html</id>
+            <category term="Rust"/>
+
+        <updated>2024-08-29T15:16:00+05:30</updated>
+            <summary>
+                <![CDATA[
+                    Scopes in Rust&nbsp; In Rust, scope is an important concept that determines&hellip;
+                ]]>
+            </summary>
+        <content type="html">
+            <![CDATA[
+                
+    <h2 id="scopes-in-rustandnbsplessbrgreater">
+      Scopes in Rust&nbsp;<br>
+    </h2>
+
+  <p>
+    In Rust, scope is an important concept that determines where variables are accessible. Let's explore this with some code examples:
+  </p>
+<pre class="line-numbers  language-rust"><code>fn main() {
+    // This defines `i` in the scope of the main function.
+    // It won't be accessible from a different function.
+    let i = 5; 
+    println!("{i}");
+
+    // This creates a new scope for the loop.
+    // The curly braces start a new scope for the variables defined in the loop.
+    for i in 1..5 {
+        println!("{}", i);
+    }
+
+    // You can also create just a scope with curly braces
+    // and define variables that are scoped to that block.
+    {
+        let name = String::new();
+        println!("{}", name);
+    }
+    // This won't compile and will give an error:
+    // println!("{}", name);
+}</code></pre>
+
+  <p>
+    Understanding scope is crucial for working with references and lifetimes in Rust.<br>
+  </p>
+
+    <h2 id="references-in-rust">
+      References in Rust
+    </h2>
+
+  <p>
+    References allow us to give access to a value through another variable. Here's how they work:
+  </p>
+<pre class="line-numbers  language-rust"><code>let name = String::from("akbar");
+println!("{name}");
+
+// We can create a reference to the above variable
+let n = &name;
+
+// `n` gets assigned the address of the value 
+
+// While you often need to explicitly dereference references in Rust,
+// certain operations like println! have built-in behavior to
+// automatically dereference when it makes sense to do so.
+println!("{}", n);
+println!("{}", *n);
+
+// This returns the memory address of n
+println!("{:p}", n);</code></pre>
+
+    <h2 id="the-display-trait-and-referencesandnbsplessbrgreater">
+      The Display Trait and References&nbsp;<br>
+    </h2>
+
+  <p>
+    Let's connect this to the <code>Display</code> trait:
+  </p>
+<pre class="line-numbers  language-rust"><code>let name = String::from("akbar");
+let n = &name;
+println!("{}", n);</code></pre>
+
+  <p>
+    Here's what's happening behind the scenes:
+  </p>
+
+  <ul>
+    <li><code>n</code> is a <code>&amp;String</code>
+</li><li><code>println!</code> looks for a <code>Display</code> implementation for <code>&amp;String</code>
+</li><li>It doesn't find one, so it dereferences <code>&amp;String</code> to <code>String</code>
+</li><li>It still doesn't find a <code>Display</code> implementation for <code>String</code>, so it dereferences again
+</li><li>Now it has a <code>str</code>, which does have a <code>Display</code> implementation
+</li><li>It uses this implementation to print the string</li>
+  </ul>
+
+  <p>
+    This multi-step dereferencing happens automatically, which is why you don't need to write <code>*n</code> explicitly. This automatic dereferencing is due to a feature called "deref coercion", which allows you to use a <code>&amp;String</code> where a <code>&amp;str</code> is expected without explicit dereferencing.
+  </p>
+
+    <h2 id="sized-and-unsized-types-in-rustlessbrgreater">
+      Sized and Unsized Types in Rust<br>
+    </h2>
+
+    <h3 id="sized-vs-unsized-typesandnbsplessbrgreater">
+      Sized vs. Unsized Types:&nbsp;<br>
+    </h3>
+
+  <ul>
+    <li>A sized type is one whose size is known at compile time. For example, <code>i32</code>, <code>f64</code>, or any struct with fields of known size.
+</li><li>An unsized type is one whose size is not known at compile time. These are also called "dynamically sized types" (DSTs).</li>
+  </ul>
+
+    <h2 id="why-str-is-unsized">
+      Why str is Unsized:
+    </h2>
+
+  <p>
+    <code>str</code> represents a string slice of any length. Since strings can be of any length, the compiler doesn't know how much memory a <code>str</code> will occupy at compile time.
+  </p>
+
+    <h3 id="why-we-use-andampstr">
+      Why We Use &amp;str:
+    </h3>
+
+  <p>
+    While we can't use <code>str</code> directly (because its size is unknown), we can use a reference to it: <code>&amp;str</code>.
+  </p>
+
+  <p>
+    A reference to an unsized type is itself a sized type. It consists of two parts:
+  </p>
+
+  <ul>
+    <li>A pointer to the data
+</li><li>Additional information about the unsized type (in this case, the length of the string)</li>
+  </ul>
+
+  <p>
+    This combination of pointer and metadata is known as a "fat pointer" and has a known size at compile time.
+  </p>
+
+    <h3 id="how-references-make-it-sized">
+      How References Make it Sized:
+    </h3>
+
+  <p>
+    For <code>&amp;str</code>, the reference contains:
+  </p>
+
+  <ul>
+    <li>A pointer to the start of the string data
+</li><li>The length of the string</li>
+  </ul>
+
+  <p>
+    This reference has a fixed size (typically two words: one for the pointer, one for the length), which is known at compile time.
+  </p>
+
+    <h3 id="exampleandnbsplessbrgreater">
+      Example&nbsp;<br>
+    </h3>
+<pre class="line-numbers  language-rust"><code>// let s: str = "Hello, world!";  // This is not allowed!
+let s: &str = "Hello, world!"; // This is fine</code></pre>
+
+  <p>
+    In the commented-out line, we can't create a variable of type str directly because Rust wouldn't know how much stack space to allocate for it.
+  </p>
+
+  <p>
+    In the second line, we're creating a reference to a string slice, which has a known size (typically 16 bytes on a 64-bit system: 8 for the pointer, 8 for the length).
+  </p>
+
+    <h2 id="lifetimes">
+      Lifetimes
+    </h2>
+
+  <p>
+    Lifetimes are Rust's way of ensuring that references are valid for as long as they're used. Here's an example that demonstrates a lifetime issue:
+  </p>
+<pre class="line-numbers  language-rust"><code>let n: &String;
+{
+    let name = String::from("akbar");
+    n = &name; // this would give an error
+}
+println!("{n}");</code></pre>
+
+  <p>
+    This code would result in a compile-time error:
+  </p>
+<pre class="line-numbers  language-rust"><code>error[E0597]: `name` does not live long enough
+   --&gt; src/main.rs:116:9
+    |
+115 |     let name = String::from("akbar");
+    |         ---- binding `name` declared here
+116 |     n = &name;
+    |         ^^^^^ borrowed value does not live long enough</code></pre>
+
+  <p>
+    The error occurs because <code>name</code> goes out of scope at the end of the inner block, but we're trying to use a reference to it outside of that scope.<br>
+  </p>
+
+    <h2 id="ownership">
+      Ownership
+    </h2>
+
+  <p>
+    Rust uses an ownership system to manage memory without a garbage collector. Here are some key points:
+  </p>
+
+  <ul>
+    <li>There is only a single owner for each piece of data.
+</li><li>When the owner goes out of scope, the data is automatically deallocated.</li>
+  </ul>
+
+  <p>
+    Let's look at an example:
+  </p>
+<pre class="line-numbers  language-rust"><code>let first = String::from("Akbar");
+let name = first;
+
+println!("{}", first); // this would give an error</code></pre>
+
+  <p>
+    In this case, the ownership of the string data has moved from first to name. After this move, first is no longer valid to use. Rust prevents us from using moved values to avoid potential bugs.
+  </p>
+
+  <p>
+    If we try to compile this code, we'd get an error message like this:
+  </p>
+<pre class="line-numbers  language-rust"><code>error[E0382]: borrow of moved value: `first`
+ --&gt; src/main.rs:134:20
+  |
+131 | let first = String::from("Akbar");
+  |     ----- move occurs because `first` has type `String`, which does not implement the `Copy` trait
+132 | let name = first;
+  |             ----- value moved here
+133 | 
+134 | println!("{}", first); // this would give error
+  |                    ^^^^^ value borrowed here after move
+  |
+  = note: this error originates in the macro `$crate::format_args_nl` which comes from the expansion of the macro `println` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider cloning the value if the performance cost is acceptable
+  |
+132 | let name = first.clone();
+  |                  ++++++++</code></pre>
+
+  <p>
+    This ownership model applies to data created on the heap, like <code>String</code>. For primitive types that are stored on the stack, Rust uses copying instead of moving:
+  </p>
+<pre class="line-numbers  language-rust"><code>let score = 50;
+let points = score;
+println!("{}", score); // this will print</code></pre>
+
+  <p>
+    In this case, <code>score</code> is copied to <code>points</code>, and both variables remain usable because primitive types implement the <code>Copy</code> trait.
+  </p>
+
+  <p>
+    Understanding these concepts of scopes, references, sized types, lifetimes, and ownership is crucial for writing efficient and safe Rust code. Rust's strict rules might seem challenging at first, but they prevent many common programming errors at compile-time, leading to more robust and secure software.
+  </p>
+            ]]>
+        </content>
+    </entry>
+</feed>

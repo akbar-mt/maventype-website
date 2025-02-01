@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="https://akbar-mt.github.io/maventype-website/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/</loc>
+</url>
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/building-a-simple-collection-management-system-in-rust.html</loc>
+<lastmod>2025-02-01T17:32:51+05:30</lastmod>
+</url>
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/rust-scopes-references-sized-types-lifetimes-and-ownership.html</loc>
+<lastmod>2025-02-01T16:58:47+05:30</lastmod>
+</url>
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/understanding-arrays-and-vectors-in-rust.html</loc>
+<lastmod>2025-02-01T13:18:50+05:30</lastmod>
+</url>
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/understanding-move-semantics-copy-and-clone-in-rust.html</loc>
+<lastmod>2025-02-01T16:58:58+05:30</lastmod>
+</url>
+<url>
+<loc>https://akbar-mt.github.io/maventype-website/understanding-rusts-block-scope-vs-function-scope-a-deep-dive.html</loc>
+<lastmod>2025-02-01T13:19:36+05:30</lastmod>
+</url>
+</urlset>
